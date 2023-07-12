@@ -9,11 +9,6 @@
 // 引入glad管理opengl的函数，引入glfw设置窗口，屏蔽系统细节
 #include "draw_triangle.hpp"
 
-//函数声明区域
-//----------
-void processIuput(GLFWwindow * window);
-void framebuffer_size_callback(GLFWwindow * window, int width, int  height);
-
 // 顶点着色器硬代码
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
@@ -30,7 +25,7 @@ const char * fragmentShaderSource = "#version 330 core\n"
     "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "} \n\0";
 
-int Triangle::draw() {
+void Triangle::initGLFW() {
 //    glfw init and configurate
 //    -------------------------
     glfwInit();
@@ -40,19 +35,26 @@ int Triangle::draw() {
     #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
+}
+
+bool Triangle::createWindow(int width, int height, const char * window_name) {
+    initGLFW();
 //    create glfw window
 //    ------
-    GLFWwindow * window = glfwCreateWindow(800, 600, "create_window", NULL, NULL);
-    if(window == NULL) {
+    window_ = glfwCreateWindow(width, height, window_name, NULL, NULL);
+    if(window_ == NULL) {
         cout<<"Failed to create GLFW window."<<endl;
         glfwTerminate();
-        return -1;
+        return false;
     }
 //    通知GLFW将我们窗口的上下文设置为当前线程的主上下文
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window_);
 //    注册函数framebuffer_size_callback函数，告诉GLFW我们希望每当窗口调整大小的时候调用这个函数：
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
+    glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
+    return true;
+}
+
+int Triangle::setGLAD() {
 //    设置glad，管理opengl函数的指针
 //    ------
 //    给GLAD传入了用来加载系统相关的OpenGL函数指针地址的函数
@@ -60,10 +62,13 @@ int Triangle::draw() {
         cout<<"Failed to initialize LAD"<<endl;
         return -1;
     }
+    return 0;
+}
+
+bool Triangle::setVertexShader() {
 //    顶点着色器 ：vertex shader
 //    ------------------------
 //    创建顶点着色器
-    unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
 //    将着色器源码附加到着色器对象上，并进行编译
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -75,10 +80,14 @@ int Triangle::draw() {
     if(!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
+        return false;
     }
+    return true;
+}
+
+bool Triangle::setFragmentShader() {
 //    片段着色器 : fragment shader
 //    ---------------------------
-    unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 //    将着色器源码附加到着色器对象上，并进行编译
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
@@ -90,11 +99,15 @@ int Triangle::draw() {
     if(!frag_success)  {
         glGetShaderInfoLog(fragmentShader, 512, NULL, frag_log_info);
         cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << frag_log_info << endl;
+        return false;
     }
+    return true;
+}
+
+bool Triangle::setShaderProgram() {
 //    着色器程序
 //    --------
 //    创建程序对象
-    unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
 //    附加着色器到程序对象，并进行链接
     glAttachShader(shaderProgram, vertexShader);
@@ -106,12 +119,16 @@ int Triangle::draw() {
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &program_success);
     if(!program_success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, program_log_info);
-        cout << "ERROR::PROGRAM::LINK_FAILED\n" << frag_log_info << endl;
+        cout << "ERROR::PROGRAM::LINK_FAILED\n" << program_log_info << endl;
+        return false;
     }
-//    删除着色器对象
+    //    删除着色器对象
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    
+    return true;
+}
+
+void Triangle::prepareDataBuffer() {
 //    设置顶点位置，并加载到顶点缓冲的内存中，方便读取
 //    --------------------------------------
     float vertices[] = {
@@ -120,12 +137,10 @@ int Triangle::draw() {
          0.0f,  0.5f, 0.0f
     };
 //    创建顶点数组对象VAO
-    unsigned int VAO;
     glGenVertexArrays(1, &VAO);
 //    绑定VAO
     glBindVertexArray(VAO);
 //    设置顶点缓冲对象 ： 使用glGenBuffers函数和一个缓冲ID生成一个VBO对象
-    unsigned int VBO;
     glGenBuffers(1, &VBO);
 //    绑定缓冲到GL_ARRAY_BUFFER目标上
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -138,14 +153,48 @@ int Triangle::draw() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void *)0);
 //    顶点属性位置值作为参数，启用顶点属性；
     glEnableVertexAttribArray(0);
-//    VBO和VAO解绑
+//    VBO和VAO解绑:此处解绑VAO是为了避免其他偶然性的事件修改这个VAO的内容
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    return ;
+}
+
+void Triangle::recycleResource() {
+//    回收所有缓冲资源
+//    -------------
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
+}
+
+int Triangle::draw() {
+//    创建窗口
+    if (!createWindow()) {
+        return -1;
+    }
+//    设置glad
+    if(setGLAD() == -1) {
+        return -1;
+    }
+//    设置顶点着色器
+    if(!setVertexShader()) {
+        return -1;
+    }
+//    设置片段着色器
+    if(!setFragmentShader()) {
+        return -1;
+    }
+//    设置着色器程序
+    if(!setShaderProgram()) {
+        return -1;
+    }
+//    设置数据缓冲
+    prepareDataBuffer();
 //    渲染过程
 //    ------
-    while(!glfwWindowShouldClose(window)) {
+    while(!glfwWindowShouldClose(window_)) {
 //        处理输入
-        processIuput(window);
+        processIuput(window_);
 //        渲染指令
 //        glClearColor,设置清空屏幕所用的颜色,只是设置状态
         glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
@@ -157,15 +206,11 @@ int Triangle::draw() {
 //        绘制图元
         glDrawArrays(GL_TRIANGLES, 0, 3);
 //        交换缓冲区
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window_);
 //        处理触发事件
         glfwPollEvents();
     }
-//    回收所有缓冲资源
-//    -------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
+    recycleResource();
 //    回收资源
 //    -------
     glfwTerminate();
