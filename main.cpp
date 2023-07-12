@@ -5,19 +5,24 @@
 //  Created by xiaoR on 2023/7/10.
 //
 
-#include <iostream>
 #include "basic_graph.hpp"
 #include "draw_triangle.hpp"
 
-using namespace std;
-
 int main() {
+//    定义基础图形类
+//    BasicGraph *  basic_graph_obj = new BasicGraph();
+//    int basic_flag = basic_graph_obj->draw();
+//    if(basic_flag) {
+//        cout << "ERROR::BasicGraph::draw" << endl;
+//    }
+//    delete basic_graph_obj;
 //    定义三角形类
-    Triangle triangle;
-    int flag = triangle.draw();
+    Triangle * triangle = new Triangle();
+    int flag = triangle->draw();
     if(flag) {
         cout << "ERROR::Triangle::draw" << endl;
     }
+    delete triangle;
     return 0;
 }
 

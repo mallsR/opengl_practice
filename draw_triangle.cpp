@@ -25,44 +25,20 @@ const char * fragmentShaderSource = "#version 330 core\n"
     "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "} \n\0";
 
-void Triangle::initGLFW() {
-//    glfw init and configurate
-//    -------------------------
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #endif
+Triangle::Triangle(int width, int height, const char * window_name) {
+    BasicGraph(width, height, window_name);
 }
 
-bool Triangle::createWindow(int width, int height, const char * window_name) {
-    initGLFW();
-//    create glfw window
-//    ------
-    window_ = glfwCreateWindow(width, height, window_name, NULL, NULL);
-    if(window_ == NULL) {
-        cout<<"Failed to create GLFW window."<<endl;
-        glfwTerminate();
-        return false;
-    }
-//    通知GLFW将我们窗口的上下文设置为当前线程的主上下文
-    glfwMakeContextCurrent(window_);
-//    注册函数framebuffer_size_callback函数，告诉GLFW我们希望每当窗口调整大小的时候调用这个函数：
-    glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
-    return true;
+void Triangle::initGLFW() {
+    BasicGraph::initGLFW();
+}
+
+bool Triangle::createWindow() {
+    return BasicGraph::createWindow();
 }
 
 int Triangle::setGLAD() {
-//    设置glad，管理opengl函数的指针
-//    ------
-//    给GLAD传入了用来加载系统相关的OpenGL函数指针地址的函数
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        cout<<"Failed to initialize LAD"<<endl;
-        return -1;
-    }
-    return 0;
+    return BasicGraph::setGLAD();
 }
 
 bool Triangle::setVertexShader() {
@@ -199,6 +175,7 @@ int Triangle::draw() {
 //        glClearColor,设置清空屏幕所用的颜色,只是设置状态
         glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
         glClear(GL_COLOR_BUFFER_BIT);
+//        在窗口内底色上，绘制三角形
 //        激活程序对象
         glUseProgram(shaderProgram);
 //        绑定VAO
@@ -220,18 +197,10 @@ int Triangle::draw() {
 //函数定义区域
 //统一处理输入
 //----------
-void processIuput(GLFWwindow * window) {
-//    按下ESC键
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-//        设置窗口状态为关闭
-        glfwSetWindowShouldClose(window, true);
-    }
-}
-
-//设置视口大小
-//----------
-void framebuffer_size_callback(GLFWwindow * window, int width, int  height) {
-//    通过调用glViewport函数，设置窗口维度
-//    para_0, para_1，设置窗口左下角的位置，para_2,para_3设置窗口宽高
-    glViewport(0, 0, width, height);
-}
+//void processIuput(GLFWwindow * window) {
+////    按下ESC键
+//    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+////        设置窗口状态为关闭
+//        glfwSetWindowShouldClose(window, true);
+//    }
+//}
