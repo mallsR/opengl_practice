@@ -8,20 +8,22 @@
 #include "basic_graph.hpp"
 
 // 顶点着色器硬代码
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
+//const char *vertexShaderSource = "#version 330 core\n"
+//    "layout (location = 0) in vec3 aPos;\n"
+//    "void main()\n"
+//    "{\n"
+//    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+//    "}\0";
 
 // fragment shader 硬代码
-const char * fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "} \n\0";
+//const char * fragmentShaderSource = "#version 330 core\n"
+//    "out vec4 FragColor;\n"
+//    "uniform vec4 ourColor;  //在opengl代码中设置这边uniform变量，实现外部改变起功能\n"
+//    "void main()\n"
+//    "{\n"
+//    "   // FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+//    "   FragColor = ourColor;\n"
+//    "} \n\0";
 
 BasicGraph::BasicGraph(int width, int height, const char * window_name) {
     width_ = width;
@@ -69,7 +71,7 @@ int BasicGraph::setGLAD() {
     return 0;
 }
 
-bool BasicGraph::setVertexShader() {
+bool BasicGraph::setVertexShader(char * vertexShaderSource) {
 //    顶点着色器 ：vertex shader
 //    ------------------------
 //    创建顶点着色器
@@ -89,7 +91,7 @@ bool BasicGraph::setVertexShader() {
     return true;
 }
 
-bool BasicGraph::setFragmentShader() {
+bool BasicGraph::setFragmentShader(char * fragmentShaderSource) {
 //    片段着色器 : fragment shader
 //    ---------------------------
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);

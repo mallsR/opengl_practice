@@ -30,13 +30,29 @@ protected:
     unsigned int vertexShader;
     unsigned int fragmentShader;
     unsigned int shaderProgram;
+//    vertex shader hard code
+    char *vertexShaderSource = "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\0";
+//    fragment shader hard code
+    char * fragmentShaderSource = "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "uniform vec4 ourColor;  //在opengl代码中设置这边uniform变量，实现外部改变起功能\n"
+        "void main()\n"
+        "{\n"
+        "   // FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "   FragColor = ourColor;\n"
+        "} \n\0";
 public:
     BasicGraph(int width = 800, int height = 600, const char * window_name = "create_window");
     void initGLFW();
     bool createWindow();
     int setGLAD();
-    bool setVertexShader();
-    bool setFragmentShader();
+    bool setVertexShader(char * vertexShaderSource);
+    bool setFragmentShader(char * fragmentShaderSource);
     bool setShaderProgram();
     void recycleResource();
     int draw();

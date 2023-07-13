@@ -9,6 +9,24 @@
 // 引入glad管理opengl的函数，引入glfw设置窗口，屏蔽系统细节
 #include "draw_triangle.hpp"
 
+// vertex shader hard code
+//const char * vertexShaderSource = "#version 330 core\n"
+//    "layout (location = 0) in vec3 aPos; // 位置变量的属性位置值为 0\n"
+//    "layout (location = 1) in vec3 aColor; // 颜色变亮的属性位置值为 1\n"
+//    "out vec3 ourColor; //为fragment shader输出一个颜色\n"
+//    "void main() {\n"
+//    "    gl_position = vec4(aPos, 1.0);\n"
+//    "    ourColor = aColor;\n"
+//    "}\n";
+//
+//// fragment shader hard code
+//const char * fragmentShaderSource = "#version 330 core\n"
+//    "out vec4 FragColor;\n"
+//    "in vec3 ourColor;\n"
+//    "void main()  {\n"
+//    "   FragColor = vec4(ourColor, 1.0);\n"
+//    "}\n";
+
 Triangle::Triangle(int width, int height, const char * window_name) {
     BasicGraph(width, height, window_name);
 }
@@ -26,11 +44,11 @@ int Triangle::setGLAD() {
 }
 
 bool Triangle::setVertexShader() {
-    return BasicGraph::setVertexShader();
+    return BasicGraph::setVertexShader(vertexShaderSource);
 }
 
 bool Triangle::setFragmentShader() {
-    return BasicGraph::setFragmentShader();
+    return BasicGraph::setFragmentShader(fragmentShaderSource);
 }
 
 bool Triangle::setShaderProgram() {
@@ -40,10 +58,17 @@ bool Triangle::setShaderProgram() {
 void Triangle::prepareDataBuffer() {
 //    设置顶点位置，并加载到顶点缓冲的内存中，方便读取
 //    --------------------------------------
+//    float vertices[] = {
+//        -0.5f, -0.5f, 0.0f,
+//         0.5f, -0.5f, 0.0f,
+//         0.0f,  0.5f, 0.0f
+//    };
+//    为不同的顶点赋予不同的颜色值
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
+        // 位置              // 颜色
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // 右下
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // 左下
+         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // 顶部
     };
 //    创建顶点数组对象VAO
     glGenVertexArrays(1, &VAO);
@@ -58,14 +83,34 @@ void Triangle::prepareDataBuffer() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 //    链接顶点属性 ：用于告知OpenGL以何种方式解析和利用内存中的顶点数据
 //    ------------------------------------------------------
-//    设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void *)0);
-//    顶点属性位置值作为参数，启用顶点属性；
+////    设置顶点属性指针
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (void *)0);
+////    顶点属性位置值作为参数，启用顶点属性；
+//    glEnableVertexAttribArray(0);
+//    位置属性
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+//    颜色属性
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 *  sizeof(float)));
+    glEnableVertexAttribArray(1);
 //    VBO和VAO解绑:此处解绑VAO是为了避免其他偶然性的事件修改这个VAO的内容
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     return ;
+}
+
+void Triangle::setGraphColor() {
+//    glfwGetTime : 获取时间seconds
+    float time_value = glfwGetTime();
+    float green_value = (sin(time_value) / 2) + 0.5f;
+//    glGetUniformLocation :获取我们需要设置的颜色uniform变量的位置
+//    para_1 ： 着色器程序
+//    para_2 : 目标变量名（string）
+    int vertex_color_location = glGetUniformLocation(shaderProgram, "ourColor");
+//    glUniform4f : 更新uniform变量的值，记得在函数外先激活着色器。因为它是在当前激活的着色器程序中设置uniform的。
+//    注意⚠️ ：glUniform4f中的4f表示需要4个float作为它的值。
+//    这是因为OpenGL核心是一个C库，所以它不支持类型重载，在函数参数不同的时候就要为其定义新的函数；
+    glUniform4f(vertex_color_location, 0.0f, green_value, 0.0f, 1.0f);
 }
 
 void Triangle::recycleResource() {
@@ -111,6 +156,8 @@ int Triangle::draw() {
 //        在窗口内底色上，绘制三角形
 //        激活程序对象
         glUseProgram(shaderProgram);
+//        更新uniform : ourColor的颜色
+        setGraphColor();
 //        绑定VAO
         glBindVertexArray(VAO);
 //        绘制图元

@@ -20,11 +20,11 @@ int Parallelogram::setGLAD() {
 }
 
 bool Parallelogram::setVertexShader() {
-    return BasicGraph::setVertexShader();
+    return BasicGraph::setVertexShader(vertexShaderSource);
 }
 
 bool Parallelogram::setFragmentShader() {
-    return BasicGraph::setFragmentShader();
+    return BasicGraph::setFragmentShader(fragmentShaderSource);
 }
 
 bool Parallelogram::setShaderProgram() {
