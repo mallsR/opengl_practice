@@ -27,11 +27,18 @@ private:
     const char * window_name_;
 protected:
     GLFWwindow * window_;
+    unsigned int vertexShader;
+    unsigned int fragmentShader;
+    unsigned int shaderProgram;
 public:
     BasicGraph(int width = 800, int height = 600, const char * window_name = "create_window");
     void initGLFW();
     bool createWindow();
     int setGLAD();
+    bool setVertexShader();
+    bool setFragmentShader();
+    bool setShaderProgram();
+    void recycleResource();
     int draw();
 };
 

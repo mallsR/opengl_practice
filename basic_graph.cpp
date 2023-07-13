@@ -7,6 +7,22 @@
 
 #include "basic_graph.hpp"
 
+// 顶点着色器硬代码
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
+// fragment shader 硬代码
+const char * fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "} \n\0";
+
 BasicGraph::BasicGraph(int width, int height, const char * window_name) {
     width_ = width;
     height_ = height;
@@ -51,6 +67,75 @@ int BasicGraph::setGLAD() {
         return -1;
     }
     return 0;
+}
+
+bool BasicGraph::setVertexShader() {
+//    顶点着色器 ：vertex shader
+//    ------------------------
+//    创建顶点着色器
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+//    将着色器源码附加到着色器对象上，并进行编译
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+//    检查编译着色器是否成功
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if(!success) {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
+        return false;
+    }
+    return true;
+}
+
+bool BasicGraph::setFragmentShader() {
+//    片段着色器 : fragment shader
+//    ---------------------------
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+//    将着色器源码附加到着色器对象上，并进行编译
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+//    检查编译着色器是否成功
+    int frag_success;
+    char frag_log_info[512];
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &frag_success);
+    if(!frag_success)  {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, frag_log_info);
+        cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << frag_log_info << endl;
+        return false;
+    }
+    return true;
+}
+
+bool BasicGraph::setShaderProgram() {
+//    着色器程序
+//    --------
+//    创建程序对象
+    shaderProgram = glCreateProgram();
+//    附加着色器到程序对象，并进行链接
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+//    检查着色器链接是否失败
+    int program_success;
+    char program_log_info[512];
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &program_success);
+    if(!program_success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, program_log_info);
+        cout << "ERROR::PROGRAM::LINK_FAILED\n" << program_log_info << endl;
+        return false;
+    }
+    //    删除着色器对象
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    return true;
+}
+
+void BasicGraph::recycleResource() {
+//    回收所有缓冲资源
+//    -------------
+    glDeleteProgram(shaderProgram);
 }
 
 int BasicGraph::draw() {

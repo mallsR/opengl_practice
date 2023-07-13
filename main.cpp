@@ -7,6 +7,7 @@
 
 #include "basic_graph.hpp"
 #include "draw_triangle.hpp"
+#include "parallelogram.hpp"
 
 int main() {
 //    定义基础图形类
@@ -17,12 +18,19 @@ int main() {
 //    }
 //    delete basic_graph_obj;
 //    定义三角形类
-    Triangle * triangle = new Triangle();
-    int flag = triangle->draw();
-    if(flag) {
-        cout << "ERROR::Triangle::draw" << endl;
+//    Triangle * triangle = new Triangle();
+//    int flag = triangle->draw();
+//    if(flag) {
+//        cout << "ERROR::Triangle::draw" << endl;
+//    }
+//    delete triangle;
+//    定义平行四边形类
+    Parallelogram * parallelogram = new Parallelogram();
+    int parallelogram_flag = parallelogram->draw();
+    if (parallelogram_flag) {
+        cout << "ERROR::Parallelogram::draw" << endl;
     }
-    delete triangle;
+    delete parallelogram;
     return 0;
 }
 

@@ -17,9 +17,6 @@ using namespace std;
 
 class Triangle : public BasicGraph{
 private:
-    unsigned int vertexShader;
-    unsigned int fragmentShader;
-    unsigned int shaderProgram;
     unsigned int VAO;
     unsigned int VBO;
 public:
