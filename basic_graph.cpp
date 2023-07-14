@@ -65,7 +65,7 @@ int BasicGraph::setGLAD() {
 //    ------
 //    给GLAD传入了用来加载系统相关的OpenGL函数指针地址的函数
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        cout<<"Failed to initialize LAD"<<endl;
+        cout<<"Failed to initialize GLAD"<<endl;
         return -1;
     }
     return 0;
@@ -134,6 +134,12 @@ bool BasicGraph::setShaderProgram() {
     return true;
 }
 
+float BasicGraph::setWindowColor() {
+    int curr_seconds = glfwGetTime();
+    float green_value = sin(curr_seconds) / 2 + 0.5f;
+    return green_value;
+}
+
 void BasicGraph::recycleResource() {
 //    回收所有缓冲资源
 //    -------------
@@ -162,6 +168,7 @@ int BasicGraph::draw() {
 //        处理触发事件
         glfwPollEvents();
     }
+    glfwTerminate();
     return 0;
 }
 

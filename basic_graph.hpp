@@ -54,6 +54,7 @@ public:
     bool setVertexShader(char * vertexShaderSource);
     bool setFragmentShader(char * fragmentShaderSource);
     bool setShaderProgram();
+    float setWindowColor();
     void recycleResource();
     int draw();
 };
