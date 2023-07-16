@@ -25,10 +25,25 @@
 //    "   FragColor = ourColor;\n"
 //    "} \n\0";
 
-BasicGraph::BasicGraph(int width, int height, const char * window_name) {
+BasicGraph::BasicGraph(string out_vertex_shader_source, string out_fragment_shader_source, int width, int height, const char * window_name) {
     width_ = width;
     height_ = height;
     window_name_ = window_name;
+//    父类默认的shader hard code
+    vertex_shader_source = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+    fragment_shader_source = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "uniform vec4 ourColor;  //在opengl代码中设置这边uniform变量，实现外部改变起功能\n"
+    "void main()\n"
+    "{\n"
+    "   // FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   FragColor = ourColor;\n"
+    "} \n\0";
 }
 
 void BasicGraph::initGLFW() {
@@ -71,13 +86,15 @@ int BasicGraph::setGLAD() {
     return 0;
 }
 
-bool BasicGraph::setVertexShader(char * vertexShaderSource) {
+bool BasicGraph::setVertexShader() {
 //    顶点着色器 ：vertex shader
 //    ------------------------
 //    创建顶点着色器
+//    cout << "BasicGraph::setVertexShader :: vertex_shader_source : " << vertex_shader_source <<  endl;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
 //    将着色器源码附加到着色器对象上，并进行编译
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    const char * vertex_shader_source_pointer = vertex_shader_source.c_str();
+    glShaderSource(vertexShader, 1, &vertex_shader_source_pointer, NULL);
     glCompileShader(vertexShader);
 //    检查编译着色器是否成功
     int success;
@@ -91,12 +108,14 @@ bool BasicGraph::setVertexShader(char * vertexShaderSource) {
     return true;
 }
 
-bool BasicGraph::setFragmentShader(char * fragmentShaderSource) {
+bool BasicGraph::setFragmentShader() {
 //    片段着色器 : fragment shader
 //    ---------------------------
+//    cout << "BasicGraph::setFragmentShader :: fragment_shader_source : " << fragment_shader_source << endl;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 //    将着色器源码附加到着色器对象上，并进行编译
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    const char * fragment_shader_source_pointer = fragment_shader_source.c_str();
+    glShaderSource(fragmentShader, 1, &fragment_shader_source_pointer, NULL);
     glCompileShader(fragmentShader);
 //    检查编译着色器是否成功
     int frag_success;
