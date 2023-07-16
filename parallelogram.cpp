@@ -91,16 +91,20 @@ bool Parallelogram::setShaderProgram() {
 }
 
 void Parallelogram::setTexture() {
-    glGenTextures(1, &texture);
-//    绑定纹理对象
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glGenTextures(1, &texture1);
+//    激活纹理单元0
+//    glActiveTexture(GL_TEXTURE0);
+//    绑定纹理到当前激活的纹理单元
+    glBindTexture(GL_TEXTURE_2D, texture1);
     // 为当前绑定的纹理对象设置环绕、过滤方式
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 //    加载图片
-    string WORK_DIR = "/Users/xiaor/Project/xCode/opengl_test/opengl_test/container.jpg";
+    string WORK_DIR = "/Users/xiaor/Project/xCode/opengl_test/opengl_test/";
+    string picture1 = "container.jpg";
+    string picture_path = WORK_DIR + picture1;
     int width, height, nrChannels;
 //    char * buffer;
 ////    获取当前工作目录
@@ -109,18 +113,63 @@ void Parallelogram::setTexture() {
 //    } else {
 //        cout << "buffer : " << buffer << endl;
 //    }
-    unsigned char *data = stbi_load(WORK_DIR.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(picture_path.c_str(), &width, &height, &nrChannels, 0);
     if(data) {
 //    加载并生成纹理
-        cout << "load texture successfully. " << endl;
-        cout << "width : " << width << " height : " << height << " nrChannels : " << nrChannels << endl;
+//        cout << "load texture1 successfully. " << endl;
+//        cout << "width : " << width << " height : " << height << " nrChannels : " << nrChannels << endl;
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        std::cout << "Failed to load texture" << std::endl;
+        cout << "Failed to load texture1" << endl;
     }
 //    释放图像内存
     stbi_image_free(data);
+//    生成纹理对象
+    glGenTextures(1, &texture2);
+//    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // 为当前绑定的纹理对象设置环绕、过滤方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    加载图片 : 纹理上下颠倒！是因为OpenGL要求y轴0.0坐标是在图片的底部的，但是图片的y轴0.0坐标通常在顶部。可以使用stb_image.h库的stbi_set_flip_vertically_on_load函数翻转y轴
+    stbi_set_flip_vertically_on_load(true);
+    string picture2 = "awesomeface.png";
+    picture_path = WORK_DIR + picture2;
+    data = stbi_load(picture_path.c_str(), &width, &height, &nrChannels, 0);
+    if (data) {
+//        使用加载的图片生成纹理
+//        cout << "load texture2 successfully. " << endl;
+//        cout << "width : " << width << " height : " << height << " nrChannels : " << nrChannels << endl;
+//       my error 1
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        cout << "Failed to load texture2" << endl;
+    }
+    stbi_image_free(data);
+//    告诉opengl，每个采样器属于哪个纹理单元 : 一定不能忘记！！！my error 2
+//    activate shaderprogram
+    glUseProgram(shaderProgram);
+    glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+    glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+}
+
+glm::mat4 Parallelogram::setTransformation() {
+//    设置组合变换矩阵并返回
+//    4 * 4 的单位矩阵
+    glm::mat4 trans;
+////    构建rotate matrix : 沿z轴旋转90度。 radians : 将角度转弧度（GLM想要弧度制输入）
+//    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+////    每个轴缩放0.5倍
+//    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+//    随时间变化而逆时针旋转
+//    但矩阵是按顺序组合的，这样相当于 trans = translate_mat * rotate_mat : 先旋转再变换
+    trans = glm::translate(trans, glm::vec3(0.5, -0.5, 0.0));
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+    return trans;
 }
 
 void Parallelogram::prepareDataBuffer(float out_vertices[], int out_vertices_arr_len) {
@@ -205,6 +254,7 @@ int Parallelogram::draw() {
     }
 //    shader program
     if(!setShaderProgram()) {
+        cout << "file::Parallelogram::ERROR::function_setShaderProgram" << endl;
         return -1;
     }
     prepareDataBuffer();
@@ -215,21 +265,37 @@ int Parallelogram::draw() {
     while (!glfwWindowShouldClose(window_)) {
 //        处理输入
         processIuput(window_);
+        
 //        渲染指令
 //        绘图之前设置背景颜色
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-//        绑定纹理
-        glBindTexture(GL_TEXTURE_2D, texture);
+        
+//        绑定纹理单元
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        
 //        设定使用我们的程序进行渲染
         glUseProgram(shaderProgram);
 //        在绑定VAO时，绑定的最后一个元素缓冲区对象存储为VAO的元素缓冲区对象。然后，绑定到VAO也会自动绑定该EBO。
         glBindVertexArray(VAO);
+        
+//        transformation graph
+        glm::mat4 trans_matrix = setTransformation();
+//        para_1 : uniform 变量的位置
+//        para_2 : 矩阵数量
+//        para_3 : 是否转置(Transpose) : OpenGL和GLM均使用列主序(Column-major Ordering)布局，所以不需要转置
+//        para_4 : 矩阵数据， GLM并不是把它们的矩阵储存为OpenGL所希望接受的那种，因此我们要先用GLM的自带的函数value_ptr来变换这些数据。
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_FALSE, glm::value_ptr(trans_matrix));
+        
 //        para_1 : 绘制的模式
 //        para_2 : 绘制顶点的个数，这里填6
 //        para_3 : 索引的类型，这里是GL_UNSIGNED_INT
 //        para_4 : 指定EBO中的偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        
 //        交换缓冲区
         glfwSwapBuffers(window_);
 //        查询事件并处理 ： 包括键盘和鼠标的移动等

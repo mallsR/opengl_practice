@@ -10,6 +10,10 @@
 
 #include "basic_graph.hpp"
 #include <string.h>
+// 使用GLM
+#include "glm-0.9.8.5/glm/glm.hpp"
+#include "glm-0.9.8.5/glm/gtc/matrix_transform.hpp"
+#include "glm-0.9.8.5/glm/gtc/type_ptr.hpp"
 
 // 函数定义区域
 
@@ -18,7 +22,8 @@ private:
     unsigned int VBO;
     unsigned int EBO;
     unsigned int VAO;
-    unsigned int texture;
+    unsigned int texture1;
+    unsigned int texture2;
 public:
     Parallelogram(string out_vertex_shader_source = "", string out_fragment_shader_source = "", int width = 800, int height = 600, const char * window_name = "create_window");
 //    glfw : init and configurature
@@ -32,6 +37,7 @@ public:
 //    shader program
     bool setShaderProgram();
     void setTexture();
+    glm::mat4 setTransformation();
 //    prepare data buffer
     void prepareDataBuffer(float out_vertices[] = {}, int out_vertices_arr_len = 0);
 //    recycle resource

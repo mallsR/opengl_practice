@@ -28,7 +28,7 @@
 //    "}\n";
 
 Triangle::Triangle(int width, int height, const char * window_name) {
-    BasicGraph(width, height, window_name);
+    BasicGraph("", "", width, height, window_name);
 }
 
 void Triangle::initGLFW() {
@@ -44,11 +44,11 @@ int Triangle::setGLAD() {
 }
 
 bool Triangle::setVertexShader() {
-    return BasicGraph::setVertexShader(vertexShaderSource);
+    return BasicGraph::setVertexShader();
 }
 
 bool Triangle::setFragmentShader() {
-    return BasicGraph::setFragmentShader(fragmentShaderSource);
+    return BasicGraph::setFragmentShader();
 }
 
 bool Triangle::setShaderProgram() {

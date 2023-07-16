@@ -51,9 +51,10 @@ int main() {
     "layout (location = 2) in vec2 aTexCoord;\n"
     "out vec3 ourColor;\n"
     "out vec2 TexCoord;\n"
+    "uniform mat4 transform; // 旋转图像 \n"
     "void main()\n"
     "{\n"
-    "    gl_Position = vec4(aPos, 1.0);\n"
+    "    gl_Position = transform * vec4(aPos, 1.0);\n"
     "    ourColor = aColor;\n"
     "    TexCoord = aTexCoord;\n"
     "}\n";
@@ -61,15 +62,20 @@ int main() {
     "out vec4 FragColor;\n"
     "in vec3 ourColor;\n"
     "in vec2 TexCoord;\n"
-    "uniform sampler2D ourTexture;\n"
+    "// uniform sampler2D ourTexture;\n"
+    "uniform sampler2D texture1;\n"
+    "uniform sampler2D texture2;\n"
     "void main()\n"
     "{\n"
-    "    FragColor = texture(ourTexture, TexCoord);\n"
+    "    // FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n"
+    "    // FragColor = texture(texture1, TexCoord) * vec4(ourColor, 1.0);\n"
+    "    FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);\n"
+    "    // FragColor = mix(texture(texture1, TexCoord), texture(texture2, vec2(1.0 - TexCoord.x, TexCoord.y)), 0.2);\n"
     "}\n";
     Parallelogram * parallelogram = new Parallelogram(out_vertex_shader_source, out_fragment_shader_source);
     int parallelogram_flag = parallelogram->draw();
     if (parallelogram_flag) {
-        cout << "ERROR::PARALLELOGRAM::Texture::failed" << endl;
+        cout << "FILE::MAIN::ERROR::PARALLELOGRAM::Texture::failed" << endl;
     }
     delete parallelogram;
     return 0;
