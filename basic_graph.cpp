@@ -36,6 +36,7 @@ BasicGraph::BasicGraph(string out_vertex_shader_source, string out_fragment_shad
     "{\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
+    
     fragment_shader_source = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "uniform vec4 ourColor;  //在opengl代码中设置这边uniform变量，实现外部改变起功能\n"
@@ -98,7 +99,8 @@ bool BasicGraph::setVertexShader() {
 //    顶点着色器 ：vertex shader
 //    ------------------------
 //    创建顶点着色器
-//    cout << "BasicGraph::setVertexShader :: vertex_shader_source : " << vertex_shader_source <<  endl;
+//    此处打印shader_source，做确认！！！
+    cout << "BasicGraph::setVertexShader :: vertex_shader_source : " << vertex_shader_source <<  endl;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
 //    将着色器源码附加到着色器对象上，并进行编译
     const char * vertex_shader_source_pointer = vertex_shader_source.c_str();
@@ -119,7 +121,7 @@ bool BasicGraph::setVertexShader() {
 bool BasicGraph::setFragmentShader() {
 //    片段着色器 : fragment shader
 //    ---------------------------
-//    cout << "BasicGraph::setFragmentShader :: fragment_shader_source : " << fragment_shader_source << endl;
+    cout << "BasicGraph::setFragmentShader :: fragment_shader_source : " << fragment_shader_source << endl;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 //    将着色器源码附加到着色器对象上，并进行编译
     const char * fragment_shader_source_pointer = fragment_shader_source.c_str();

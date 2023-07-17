@@ -8,10 +8,8 @@
 #ifndef shader_hpp
 #define shader_hpp
 
-#include <glad/glad.h> // 包含glad来获取所有的必须OpenGL头文件
 #include "basic_graph.hpp"
 #include <iostream>
-#include <stdio.h>
 #include <string>
 #include <fstream>
 #include <sstream>

@@ -18,7 +18,7 @@
 // 函数定义区域
 
 class Parallelogram : public BasicGraph{
-private:
+protected:
     unsigned int VBO;
     unsigned int EBO;
     unsigned int VAO;
@@ -45,7 +45,7 @@ public:
     void prepareDataBuffer(float out_vertices[] = {}, int out_vertices_arr_len = 0);
 //    recycle resource
     void recycleResource();
-    int draw();
+    int draw(float out_vertices[] = {}, int out_vertices_arr_len = 0);
 };
 
 #endif /* parallelogram_hpp */

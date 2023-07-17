@@ -92,8 +92,6 @@ bool Parallelogram::setShaderProgram() {
 
 void Parallelogram::setTexture() {
     glGenTextures(1, &texture1);
-//    激活纹理单元0
-//    glActiveTexture(GL_TEXTURE0);
 //    绑定纹理到当前激活的纹理单元
     glBindTexture(GL_TEXTURE_2D, texture1);
     // 为当前绑定的纹理对象设置环绕、过滤方式
@@ -127,7 +125,6 @@ void Parallelogram::setTexture() {
     stbi_image_free(data);
 //    生成纹理对象
     glGenTextures(1, &texture2);
-//    glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
     // 为当前绑定的纹理对象设置环绕、过滤方式
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -175,7 +172,9 @@ glm::mat4 Parallelogram::setTransformation() {
 glm::mat4 Parallelogram::setModelMatrix() {
     glm::mat4 model;
 //    沿着x轴，逆时针旋转55度
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+//    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+//    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    model = glm::rotate(model, (float)glfwGetTime() , glm::vec3(0.5f, 1.0f, 0.0f));
     return model;
 }
 
@@ -196,6 +195,14 @@ glm::mat4 Parallelogram::setProjectionMatrix() {
 }
 
 void Parallelogram::prepareDataBuffer(float out_vertices[], int out_vertices_arr_len) {
+//    默认的顶点数据和索引
+    float vertices[] = {
+//        //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 右上
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 右下
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 左下
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // 左上
+    };
     unsigned int indices[] = {
         // 注意索引从0开始!
         // 此例的索引(0,1,2,3)就是顶点数组vertices的下标，
@@ -204,31 +211,24 @@ void Parallelogram::prepareDataBuffer(float out_vertices[], int out_vertices_arr
         0, 1, 3, // 第一个三角形
         1, 2, 3  // 第二个三角形
     };
-//    如果外部传入数据，则复制
-//    if(out_vertices_arr_len > 1) {
-//        float vertices[] = {0};
-//    } else {
-//        float vertices[] = {
-//            0.5f, 0.5f, 0.0f,   // 右上角
-//            0.5f, -0.5f, 0.0f,  // 右下角
-//            -0.5f, -0.5f, 0.0f, // 左下角
-//            -0.5f, 0.5f, 0.0f   // 左上角
-//        };
-//    }
-    float vertices[] = {
-    //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 右上
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 右下
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 左下
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // 左上
-    };
 //    创建顶点数组对象，并进行绑定
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 //    创建顶点缓冲对象，并进行绑定，复制数据到顶点缓冲中，供opengl使用
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+//    cout << "sizeof(out_vertices) : " << sizeof(out_vertices)  << endl;
+//    cout << "sizeof(vertices) : " << sizeof(vertices)  << endl;
+//    cout << "out_vertices_arr_len * sizeof(float) : " << out_vertices_arr_len * sizeof(float) << endl;
+//    如果外部传入顶点数据，则使用外部的数据
+    if (out_vertices_arr_len > 1) {
+        cout << "use out_vertices. " << endl;
+//        my error 2 : sizeof(out_vertices) 并不会计算整个数组的大小
+        glBufferData(GL_ARRAY_BUFFER, out_vertices_arr_len * sizeof(float), out_vertices, GL_STATIC_DRAW);
+    } else {
+        cout << "use vertices. " << endl;
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    }
 //    创建索引缓冲对象，并进行绑定，复制索引到索引缓冲中，供opengl使用
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -242,6 +242,11 @@ void Parallelogram::prepareDataBuffer(float out_vertices[], int out_vertices_arr
 //    texture
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+//    glEnableVertexAttribArray(0);
+//    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+//    glEnableVertexAttribArray(1);
+    
     setTexture();
 //    note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -258,7 +263,7 @@ void Parallelogram::recycleResource() {
     BasicGraph::recycleResource();
 }
 
-int Parallelogram::draw() {
+int Parallelogram::draw(float out_vertices[], int out_vertices_arr_len) {
 //    初始化glfw
     if(!createWindow()) {
         return -1;
@@ -267,6 +272,7 @@ int Parallelogram::draw() {
     if(setGLAD() == -1) {
         return -1;
     }
+    glEnable(GL_DEPTH_TEST);
 //    vertex shader
     if(!setVertexShader()) {
         return -1;
@@ -280,7 +286,7 @@ int Parallelogram::draw() {
         cout << "file::Parallelogram::ERROR::function_setShaderProgram" << endl;
         return -1;
     }
-    prepareDataBuffer();
+    prepareDataBuffer(out_vertices, out_vertices_arr_len);
 //    设置线框模式 Wireframe mode
 //    para_1 : 绘制的位置
 //    para_2 : 绘制方式
@@ -292,7 +298,7 @@ int Parallelogram::draw() {
 //        渲染指令
 //        绘图之前设置背景颜色
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 //        绑定纹理单元
         glActiveTexture(GL_TEXTURE0);
@@ -302,8 +308,6 @@ int Parallelogram::draw() {
         
 //        设定使用我们的程序进行渲染
         glUseProgram(shaderProgram);
-//        在绑定VAO时，绑定的最后一个元素缓冲区对象存储为VAO的元素缓冲区对象。然后，绑定到VAO也会自动绑定该EBO。
-        glBindVertexArray(VAO);
         
 //        transformation graph
 //        glm::mat4 trans_matrix = setTransformation();
@@ -320,7 +324,8 @@ int Parallelogram::draw() {
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view_matrix));
         glm::mat4 projection_matrix = setProjectionMatrix();
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection_matrix));
-        
+//        在绑定VAO时，绑定的最后一个元素缓冲区对象存储为VAO的元素缓冲区对象。然后，绑定到VAO也会自动绑定该EBO。
+        glBindVertexArray(VAO);
 //        para_1 : 绘制的模式
 //        para_2 : 绘制顶点的个数，这里填6
 //        para_3 : 索引的类型，这里是GL_UNSIGNED_INT
@@ -333,6 +338,9 @@ int Parallelogram::draw() {
         glfwPollEvents();
     }
     recycleResource();
+//    glDeleteVertexArrays(1, &VAO);
+//    glDeleteBuffers(1, &VBO);
+//    glDeleteShader(shaderProgram)
     glfwTerminate();
     return 0;
 }
