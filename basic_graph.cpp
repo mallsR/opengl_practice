@@ -46,6 +46,14 @@ BasicGraph::BasicGraph(string out_vertex_shader_source, string out_fragment_shad
     "} \n\0";
 }
 
+float BasicGraph::getWidth() {
+    return width_;
+}
+
+float BasicGraph::getHeight() {
+    return height_;
+}
+
 void BasicGraph::initGLFW() {
 //    glfw init and configurate
 //    -------------------------
@@ -123,7 +131,7 @@ bool BasicGraph::setFragmentShader() {
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &frag_success);
     if(!frag_success)  {
         glGetShaderInfoLog(fragmentShader, 512, NULL, frag_log_info);
-        cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << frag_log_info << endl;
+        cout << "FILE:basic_graph-----FUNCTION:setFragmentShader----ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << frag_log_info << endl;
         return false;
     }
     return true;
@@ -144,7 +152,7 @@ bool BasicGraph::setShaderProgram() {
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &program_success);
     if(!program_success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, program_log_info);
-        cout << "ERROR::PROGRAM::LINK_FAILED\n" << program_log_info << endl;
+        cout << "BASIC_GRAPH::ERROR::PROGRAM::LINK_FAILED\n" << program_log_info << endl;
         return false;
     }
     //    删除着色器对象

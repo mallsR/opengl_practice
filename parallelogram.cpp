@@ -172,6 +172,29 @@ glm::mat4 Parallelogram::setTransformation() {
     return trans;
 }
 
+glm::mat4 Parallelogram::setModelMatrix() {
+    glm::mat4 model;
+//    沿着x轴，逆时针旋转55度
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    return model;
+}
+
+glm::mat4 Parallelogram::setViewMatrix() {
+    glm::mat4 view;
+    // 注意，我们将矩阵向我们要进行移动场景的反方向移动。
+//    将场景沿着-z方向移动3个单位
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    return view;
+}
+
+glm::mat4 Parallelogram::setProjectionMatrix() {
+    float screenWidth = getWidth();
+    float screenHeight = getHeight();
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), screenWidth / screenHeight, 0.1f, 100.0f);
+    return projection;
+}
+
 void Parallelogram::prepareDataBuffer(float out_vertices[], int out_vertices_arr_len) {
     unsigned int indices[] = {
         // 注意索引从0开始!
@@ -283,12 +306,20 @@ int Parallelogram::draw() {
         glBindVertexArray(VAO);
         
 //        transformation graph
-        glm::mat4 trans_matrix = setTransformation();
+//        glm::mat4 trans_matrix = setTransformation();
+        
 //        para_1 : uniform 变量的位置
 //        para_2 : 矩阵数量
 //        para_3 : 是否转置(Transpose) : OpenGL和GLM均使用列主序(Column-major Ordering)布局，所以不需要转置
 //        para_4 : 矩阵数据， GLM并不是把它们的矩阵储存为OpenGL所希望接受的那种，因此我们要先用GLM的自带的函数value_ptr来变换这些数据。
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_FALSE, glm::value_ptr(trans_matrix));
+//        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_FALSE, glm::value_ptr(trans_matrix));
+//        mvp transformation
+        glm::mat4 model_matrix = setModelMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model_matrix));
+        glm::mat4 view_matrix = setViewMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view_matrix));
+        glm::mat4 projection_matrix = setProjectionMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection_matrix));
         
 //        para_1 : 绘制的模式
 //        para_2 : 绘制顶点的个数，这里填6

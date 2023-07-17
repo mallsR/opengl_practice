@@ -22,8 +22,8 @@ void framebuffer_size_callback(GLFWwindow * window, int width, int  height);
 
 class BasicGraph{
 private:
-    int width_;
-    int height_;
+    float width_;
+    float height_;
     const char * window_name_;
 protected:
     GLFWwindow * window_;
@@ -36,6 +36,8 @@ protected:
     string fragment_shader_source;
 public:
     BasicGraph(string out_vertex_shader_source = "", string out_fragment_shader_source = "", int width = 800, int height = 600, const char * window_name = "create_window");
+    float getWidth();
+    float getHeight();
     void initGLFW();
     bool createWindow();
     int setGLAD();

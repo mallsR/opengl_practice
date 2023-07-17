@@ -38,6 +38,9 @@ public:
     bool setShaderProgram();
     void setTexture();
     glm::mat4 setTransformation();
+    glm::mat4 setModelMatrix();
+    glm::mat4 setViewMatrix();
+    glm::mat4 setProjectionMatrix();
 //    prepare data buffer
     void prepareDataBuffer(float out_vertices[] = {}, int out_vertices_arr_len = 0);
 //    recycle resource

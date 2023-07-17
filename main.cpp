@@ -52,12 +52,17 @@ int main() {
     "out vec3 ourColor;\n"
     "out vec2 TexCoord;\n"
     "uniform mat4 transform; // 旋转图像 \n"
+    "uniform mat4 model;  // model matrix\n"
+    "uniform mat4 view;     // view matrix\n"
+    "uniform mat4 projection;      //projection matrix\n"
     "void main()\n"
     "{\n"
-    "    gl_Position = transform * vec4(aPos, 1.0);\n"
+    "    // gl_Position = transform * vec4(aPos, 1.0);\n"
+    "    gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
     "    ourColor = aColor;\n"
     "    TexCoord = aTexCoord;\n"
     "}\n";
+    
     string out_fragment_shader_source = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "in vec3 ourColor;\n"
