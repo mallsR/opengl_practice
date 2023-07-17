@@ -20,6 +20,7 @@ public:
 //    prepare data
     void prepareDataBuffer(float out_vertices[] = {}, int out_vertices_arr_len = 0);
 //  mvp transformation : local space -> world space -> view space -> clip space -> screen space
+    glm::mat4 setModelMatrix(glm::vec3 cube_position = {});
     void setMVP();
     int draw(float out_vertices[] = {}, int out_vertices_arr_len = 0);
 };

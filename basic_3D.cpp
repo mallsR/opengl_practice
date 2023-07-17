@@ -185,6 +185,12 @@ void Basic3D::prepareDataBuffer(float out_vertices[], int out_vertices_arr_len) 
 //    glBindVertexArray(0);
 }
 
+glm::mat4 Basic3D::setModelMatrix(glm::vec3 cube_position) {
+    glm::mat4 model;
+    model = glm::translate(model, cube_position);
+    return model;
+}
+
 void Basic3D::setMVP() {
 //    将mvp变换集中到一起
 //    model matrix
@@ -220,6 +226,21 @@ int Basic3D :: draw(float out_vertices[], int out_vertices_arr_len) {
     }
 //    set VAO/VBO, texture
     prepareDataBuffer(out_vertices, out_vertices_arr_len);
+
+//    定义每个立方体的位置
+    glm::vec3 cubePositions[] = {
+      glm::vec3( 0.0f,  0.0f,  0.0f),
+      glm::vec3( 2.0f,  5.0f, -15.0f),
+      glm::vec3(-1.5f, -2.2f, -2.5f),
+      glm::vec3(-3.8f, -2.0f, -12.3f),
+      glm::vec3( 2.4f, -0.4f, -3.5f),
+      glm::vec3(-1.7f,  3.0f, -7.5f),
+      glm::vec3( 1.3f, -2.0f, -2.5f),
+      glm::vec3( 1.5f,  2.0f, -2.5f),
+      glm::vec3( 1.5f,  0.2f, -1.5f),
+      glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+    
 //    render loop
     while (!glfwWindowShouldClose(window_)) {
 //        process input
@@ -238,20 +259,22 @@ int Basic3D :: draw(float out_vertices[], int out_vertices_arr_len) {
         
 //        使用程序
         glUseProgram(shaderProgram);
-        
-//        mvp transformation
-//        setMVP();
-        glm::mat4 model_matrix = setModelMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model_matrix));
-        glm::mat4 view_matrix = setViewMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view_matrix));
-        glm::mat4 projection_matrix = setProjectionMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection_matrix));
-        
 //        绘制图案
         glBindVertexArray(VAO);
-//        para_1 : 从数据缓冲中哪一个开始绘制，一般从第0个开始
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+//        mvp transformation
+        setMVP();
+                
+//        绘制10个转动的立方体
+        for(unsigned int  i = 0; i < 10; ++i) {
+            //            微调model matrix
+            glm::mat4 model = setModelMatrix(cubePositions[i]);
+            float angle = 20.f * (i + 1);
+            model = glm::rotate(model, angle * (float)glfwGetTime() * 0.03f, glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            //        para_1 : 从数据缓冲中哪一个开始绘制，一般从第0个开始
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         
 //        交换缓冲区
         glfwSwapBuffers(window_);
