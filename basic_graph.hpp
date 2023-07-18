@@ -12,12 +12,19 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+// 使用GLM
+#include "glm-0.9.8.5/glm/glm.hpp"
+#include "glm-0.9.8.5/glm/gtc/matrix_transform.hpp"
+#include "glm-0.9.8.5/glm/gtc/type_ptr.hpp"
 
 using namespace std;
 
 //函数声明区域
 //----------
-void processIuput(GLFWwindow * window);
+glm::vec3 processIuput(GLFWwindow * window, float & last_time, 
+                  glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f,  3.0f),
+                  glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f),
+                  glm::vec3 camera_up    = glm::vec3(0.0f, 1.0f,  0.0f));
 void framebuffer_size_callback(GLFWwindow * window, int width, int  height);
 
 class BasicGraph{
@@ -47,6 +54,8 @@ public:
     float setWindowColor();
     void recycleResource();
     int draw();
+    
+//    友元函数
 };
 
 #endif /* basic_graph_hpp */

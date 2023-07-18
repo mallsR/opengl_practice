@@ -10,10 +10,6 @@
 
 #include "basic_graph.hpp"
 #include <string.h>
-// 使用GLM
-#include "glm-0.9.8.5/glm/glm.hpp"
-#include "glm-0.9.8.5/glm/gtc/matrix_transform.hpp"
-#include "glm-0.9.8.5/glm/gtc/type_ptr.hpp"
 
 // 函数定义区域
 

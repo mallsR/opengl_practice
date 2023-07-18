@@ -102,8 +102,9 @@ void Shader::setFloat(const std::string &name, float value) const {
 }
 
 void Shader::draw() {
+    float last_time = 0.0f;
     while (!glfwWindowShouldClose(window_)) {
-        processIuput(window_);
+        processIuput(window_, last_time);
         glClearColor(0.2f, setWindowColor(), 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glfwSwapBuffers(window_);

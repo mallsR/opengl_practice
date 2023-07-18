@@ -146,9 +146,10 @@ int Triangle::draw() {
     prepareDataBuffer();
 //    渲染过程
 //    ------
+    float last_time = 0.0f;
     while(!glfwWindowShouldClose(window_)) {
 //        处理输入
-        processIuput(window_);
+        processIuput(window_, last_time);
 //        渲染指令
 //        glClearColor,设置清空屏幕所用的颜色,只是设置状态
         glClearColor(0.2f, 0.3f, 0.3f, 0.1f);

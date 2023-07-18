@@ -185,9 +185,10 @@ int BasicGraph::draw() {
         return -1;
     }
     std::cout << "draw successfully."  << std::endl;
+    float last_time = 0.0f;
     while (!glfwWindowShouldClose(window_)) {
 //        处理输入
-        processIuput(window_);
+        processIuput(window_, last_time);
 //        渲染指令
 //        glClearColor,设置清空屏幕所用的颜色,只是设置状态
         glClearColor(0.2f, 0.3f, 0.3f, 0.1f);
@@ -204,12 +205,32 @@ int BasicGraph::draw() {
 //函数定义区域
 //统一处理输入
 //----------
-void processIuput(GLFWwindow * window) {
+glm::vec3 processIuput(GLFWwindow * window, float & last_time,
+                  glm::vec3 camera_pos,
+                  glm::vec3 camera_front,
+                  glm::vec3 camera_up) {
 //    按下ESC键
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 //        设置窗口状态为关闭
         glfwSetWindowShouldClose(window, true);
     }
+//    通过WASD更改相机位置
+    float curr_time = glfwGetTime();
+    float camera_speed = 2.5f * (curr_time - last_time);
+    last_time = curr_time;
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        camera_pos += camera_speed * camera_front;
+    }
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera_pos -= camera_speed * camera_front;
+    }
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera_pos -= glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
+    }
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera_pos += glm::normalize(glm::cross(camera_front, camera_up)) * camera_speed;
+    }
+    return camera_pos;
 }
 
 //设置视口大小

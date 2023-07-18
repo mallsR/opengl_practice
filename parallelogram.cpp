@@ -291,9 +291,10 @@ int Parallelogram::draw(float out_vertices[], int out_vertices_arr_len) {
 //    para_1 : 绘制的位置
 //    para_2 : 绘制方式
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    float last_time = 0.0f;
     while (!glfwWindowShouldClose(window_)) {
 //        处理输入
-        processIuput(window_);
+        processIuput(window_, last_time);
         
 //        渲染指令
 //        绘图之前设置背景颜色

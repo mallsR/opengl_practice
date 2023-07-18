@@ -10,6 +10,18 @@
 //#define STB_IMAGE_IMPLEMENTATION
 //#include "stb_image.h"
 
+//    basic setting
+//    ---------------------
+//    移动速度上一时刻
+float last_time = 0.0f;
+//    鼠标初始位置
+float last_x = 400, last_y = 300;
+float yaw = -90.0f, pitch = 0.0f;
+// 外部设置的相机方向
+glm::vec3 out_camera_front;
+// 第一次进入窗口标识位，用于消除画面闪动
+bool first_mouse = true;
+
 Basic3D :: Basic3D(string out_vertex_shader_source, string out_fragment_shader_source, int width, int height, const char * window_name) {
     Parallelogram(out_vertex_shader_source, out_fragment_shader_source, width, height, window_name);
 //    my error3 ： 这里需要再设置vertex_shader_source和fragment_shader_source，不然基类的不会改变。
@@ -19,6 +31,10 @@ Basic3D :: Basic3D(string out_vertex_shader_source, string out_fragment_shader_s
     if(out_fragment_shader_source != "") {
         fragment_shader_source = out_fragment_shader_source;
     }
+//    设置摄影机属性
+    camera_pos = glm::vec3(0.0f, 0.0f,  3.0f);
+    camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
+    camera_up    = glm::vec3(0.0f, 1.0f,  0.0f);
 }
 
 bool Basic3D :: setShaderProgram() {
@@ -191,6 +207,24 @@ glm::mat4 Basic3D::setModelMatrix(glm::vec3 cube_position) {
     return model;
 }
 
+glm::mat4 Basic3D::setViewMatrix(glm::vec3 out_camera_pos) {
+//    自由移动摄像机
+//    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  3.0f);
+//    glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
+//    glm::vec3 camera_up    = glm::vec3(0.0f, 1.0f,  0.0f);
+    glm::mat4 view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    return view;
+}
+
+glm::mat4 Basic3D::setProjectionMatrix() {
+//    projection matrix
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective( glm::radians(45.0f), getWidth() / getHeight(), 0.1f, 100.0f);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    return projection;
+}
+
 void Basic3D::setMVP() {
 //    将mvp变换集中到一起
 //    model matrix
@@ -198,9 +232,17 @@ void Basic3D::setMVP() {
     model = glm::rotate(model, (float)glfwGetTime() , glm::vec3(0.5f, 1.0f, 0.0f));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
 //    view matrix
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+//    glm::mat4 view = glm::mat4(1.0f);
+//    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+//    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    
+//    设置view matrix = look at : 摄像机围绕场景旋转
+    float radius = 10.0f;
+    float cam_x = sin(glfwGetTime()) * radius;
+    float cam_z = cos(glfwGetTime()) * radius;
+    glm::mat4 view = glm::lookAt(glm::vec3(cam_x, 0.0f, cam_z), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    
 //    projection matrix
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective( glm::radians(45.0f), getWidth() / getHeight(), 0.1f, 100.0f);
@@ -213,6 +255,12 @@ int Basic3D :: draw(float out_vertices[], int out_vertices_arr_len) {
         cout << "Location :: File(basci.cpp), Function(draw);  Error :: createWindow() error!" << endl;
         return -1;
     }
+//    鼠标移动回调函数 ：只允许回调函数包含3个参数
+    glfwSetCursorPosCallback(window_, mouse_callback);
+    
+//    隐藏光标并捕获
+    glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    
 //    glad confirgulation
     if(setGLAD() == -1) {
         cout << "Location :: File(basci.cpp), Function(draw);  Error :: setGLAD() error!" << endl;
@@ -241,10 +289,16 @@ int Basic3D :: draw(float out_vertices[], int out_vertices_arr_len) {
       glm::vec3(-1.3f,  1.0f, -1.5f)
     };
     
+//    设置projection matrix
+    setProjectionMatrix();
+    
 //    render loop
     while (!glfwWindowShouldClose(window_)) {
-//        process input
-        processIuput(window_);
+//        process input and get camera_pos
+//        注意，这里每帧都需要为processInput传入相机的信息
+        glm::vec3 out_camera_pos  = processIuput(window_, last_time, camera_pos, camera_front, camera_up);
+        camera_pos = out_camera_pos;
+        camera_front = glm::normalize(out_camera_front);
         
 //        渲染指令
 //        清空屏幕
@@ -259,12 +313,13 @@ int Basic3D :: draw(float out_vertices[], int out_vertices_arr_len) {
         
 //        使用程序
         glUseProgram(shaderProgram);
-//        绘制图案
-        glBindVertexArray(VAO);
         
 //        mvp transformation
-        setMVP();
-                
+//        setMVP();
+        setViewMatrix(camera_pos);
+        
+//        绘制图案
+        glBindVertexArray(VAO);
 //        绘制10个转动的立方体
         for(unsigned int  i = 0; i < 10; ++i) {
             //            微调model matrix
@@ -290,6 +345,45 @@ int Basic3D :: draw(float out_vertices[], int out_vertices_arr_len) {
     return 0;
 }
 
+// 友元函数定义
+void setCamera() {
+    
+}
 
-
-
+// 函数具体实现区域
+//----------------------
+void mouse_callback(GLFWwindow * window, double x_pos, double y_pos) {
+//    消除画面闪动
+    if (first_mouse) {
+        last_x = x_pos;
+        last_y = y_pos;
+        first_mouse = false;
+    }
+//    计算当前帧，鼠标与上一帧的偏移量
+    double x_offset = x_pos - last_x;
+    double y_offset = last_y - y_pos;
+    last_x = x_pos;
+    last_y = y_pos;
+    
+//    加上鼠标敏感度
+    float mouse_sensitivity = 0.05f;
+    x_offset *= mouse_sensitivity;
+    y_offset *= mouse_sensitivity;
+    
+//    偏移量加上pitch和yaw
+    pitch += y_offset;
+    yaw += x_offset;
+    
+//    对pitch添加限制
+    if (pitch >= 90.0f) {
+        pitch = 89.0f;
+    }
+    if(pitch <= -90.0f) {
+        pitch = -89.0f;
+    }
+    
+//    计算方向向量
+    out_camera_front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    out_camera_front.y = sin(glm::radians(pitch));
+    out_camera_front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+}
