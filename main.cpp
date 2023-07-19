@@ -330,11 +330,30 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 //        设置场景shader uniform
+//        设置phong lighting model需要的光源和摄影机位置等信息
         lighting_shader.use();
         lighting_shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
         lighting_shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         lighting_shader.setVec3("lightPos", light_pos);
         lighting_shader.setVec3("viewPos", camera.camera_pos);
+//        设置材质
+        lighting_shader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+        lighting_shader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+        lighting_shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+        lighting_shader.setFloat("material.shininess", 32.0f);
+//        设置基础光照
+        lighting_shader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        lighting_shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        lighting_shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+//        光源的颜色随时间改变
+        glm::vec3 light_color;
+        light_color.x = sin(glfwGetTime() * 2.0f);
+        light_color.y = sin(glfwGetTime() * 0.7f);
+        light_color.z = sin(glfwGetTime() * 1.3f);
+        glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
+        glm::vec3 ambient_color = light_color * glm::vec3(0.2f);
+        lighting_shader.setVec3("light.ambient", ambient_color);
+        lighting_shader.setVec3("light.diffuse", diffuse_color);
         
 //        设置mvp变换
 //        -----------------------
