@@ -8,15 +8,17 @@
 #ifndef shader_hpp
 #define shader_hpp
 
-#include "basic_graph.hpp"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 
+#include <glad/glad.h>
+#include "glm-0.9.8.5/glm/glm.hpp"
+
 using namespace std;
 
-class Shader : public BasicGraph {
+class Shader{
 public:
 //    程序ID
     unsigned int ID;
@@ -27,7 +29,11 @@ public:
     void setBool(const string & name, bool value) const;
     void setInt(const std::string &name, int value) const;
     void setFloat(const std::string &name, float value) const;
-    void draw();
+    void setVec3(const string & name, float x, float y, float z);
+    void setMat4(const string & name, const glm::mat4 & mat);
+//    void draw();
+private:
+    void checkCompileErrors(GLuint shader, std::string type);
 };
 
 #endif /* shader_hpp */
