@@ -132,49 +132,49 @@ int main() {
 //    "    FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);\n"
 //    "}\n";
 //
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
+//    float vertices[] = {
+//        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+//         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+//         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+//        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+//
+//        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+//         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+//         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+//        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+//        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//
+//        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//
+//         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//
+//        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+//         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+//         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+//        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+//        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+//
+//        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+//         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+//         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+//        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+//        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+//    };
 //    Parallelogram * parallelogram = new Parallelogram(out_vertex_shader_source, out_fragment_shader_source);
 //    int parallelogram_flag = parallelogram->draw();
 //    if (parallelogram_flag) {
@@ -247,6 +247,49 @@ int main() {
     
 //    prepare data buffer
 //    -------------------
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+    };
 //    为场景中物体加载顶点
     unsigned int lighting_VAO, VBO;
     glGenVertexArrays(1, &lighting_VAO);
@@ -258,8 +301,10 @@ int main() {
     glBindVertexArray(lighting_VAO);
     
 //    设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
     
 //    为光源加载顶点
     unsigned int light_cube_VAO;
@@ -268,7 +313,7 @@ int main() {
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 //    设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
     
 //    render loop
@@ -288,6 +333,8 @@ int main() {
         lighting_shader.use();
         lighting_shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
         lighting_shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lighting_shader.setVec3("lightPos", light_pos);
+        lighting_shader.setVec3("viewPos", camera.camera_pos);
         
 //        设置mvp变换
 //        -----------------------
