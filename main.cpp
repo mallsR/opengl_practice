@@ -19,12 +19,17 @@
 #include "camera.hpp"
 #include "manage.hpp"
 
+// 在使用的位置加入stb_image.h
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 // 函数声明区域
 //----------------
 void framebuffer_size_callback(GLFWwindow * window, int width, int  height);
 void mouse_callback(GLFWwindow * window, double out_x_pos, double out_y_pos);
 void scroll_callback(GLFWwindow * window, double x_offset, double y_offset);
 void processInput(GLFWwindow * window);
+unsigned int loadTexture(char const * path);
 
 // settings
 //----------------
@@ -241,55 +246,102 @@ int main() {
 //    ------------------------------
 //    着色器程序 ：用于为场景中的物体着色
 //    加载的文件路径，不用带后缀
-    Shader lighting_shader("/Users/xiaor/Project/xCode/opengl_test/opengl_test/lighting/colors_vs", "/Users/xiaor/Project/xCode/opengl_test/opengl_test/lighting/colors_fs");
+    Shader lighting_shader("/Users/xiaor/Project/xCode/opengl_test/opengl_test/lighting/4.1.colors_vs", "/Users/xiaor/Project/xCode/opengl_test/opengl_test/lighting/4.1.colors_fs");
 //    着色器程序 ： 用于为光源着色
     Shader light_cube_shader("/Users/xiaor/Project/xCode/opengl_test/opengl_test/lighting/light_cube_vs", "/Users/xiaor/Project/xCode/opengl_test/opengl_test/lighting/light_cube_fs");
     
 //    prepare data buffer
 //    -------------------
+//    float vertices[] = {
+//        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//
+//        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//
+//        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+//        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+//        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+//        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+//        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+//        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+//
+//         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+//         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+//         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+//         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+//         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+//         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+//
+//        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+//         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+//         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+//         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+//        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+//        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+//
+//        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+//         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+//         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+//         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+//        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+//        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+//    };
+    
+//    Lighting:Lighting maps vertexs
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
+    
 //    为场景中物体加载顶点
     unsigned int lighting_VAO, VBO;
     glGenVertexArrays(1, &lighting_VAO);
@@ -301,10 +353,15 @@ int main() {
     glBindVertexArray(lighting_VAO);
     
 //    设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+//    pos
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+//    normal
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+//    lighting maps
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
     
 //    为光源加载顶点
     unsigned int light_cube_VAO;
@@ -313,8 +370,24 @@ int main() {
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 //    设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+    
+//    set lighting maps
+    string WORK_DIR = "/Users/xiaor/Project/xCode/opengl_test/opengl_test/lighting/";
+    string diffuse_map_picture = "container2.png";
+    string diffuse_map_path = WORK_DIR + diffuse_map_picture;
+    cout << "diffuse_map_path : " << diffuse_map_path << endl;
+    string specular_map_picture = "container2_specular.png";
+    string specular_map_path = WORK_DIR + specular_map_picture;
+    cout << "specular_map_path : " << specular_map_path << endl;
+    unsigned int diffuse_map = loadTexture(diffuse_map_path.c_str());
+    unsigned int specular_map = loadTexture(specular_map_path.c_str());
+    
+//    绑定箱子的不同纹理到纹理单元
+    lighting_shader.use();
+    lighting_shader.setInt("material.diffuse", 0);
+    lighting_shader.setInt("material.specular", 1);
     
 //    render loop
 //    ---------------------
@@ -332,28 +405,28 @@ int main() {
 //        设置场景shader uniform
 //        设置phong lighting model需要的光源和摄影机位置等信息
         lighting_shader.use();
-        lighting_shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lighting_shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        lighting_shader.setVec3("lightPos", light_pos);
+//        lighting_shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+//        lighting_shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lighting_shader.setVec3("light.position", light_pos);
         lighting_shader.setVec3("viewPos", camera.camera_pos);
 //        设置材质
-        lighting_shader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-        lighting_shader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+//        lighting_shader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+//        lighting_shader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
         lighting_shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-        lighting_shader.setFloat("material.shininess", 32.0f);
+        lighting_shader.setFloat("material.shininess", 64.0f);
 //        设置基础光照
         lighting_shader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         lighting_shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         lighting_shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 //        光源的颜色随时间改变
-        glm::vec3 light_color;
-        light_color.x = sin(glfwGetTime() * 2.0f);
-        light_color.y = sin(glfwGetTime() * 0.7f);
-        light_color.z = sin(glfwGetTime() * 1.3f);
-        glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
-        glm::vec3 ambient_color = light_color * glm::vec3(0.2f);
-        lighting_shader.setVec3("light.ambient", ambient_color);
-        lighting_shader.setVec3("light.diffuse", diffuse_color);
+//        glm::vec3 light_color;
+//        light_color.x = sin(glfwGetTime() * 2.0f);
+//        light_color.y = sin(glfwGetTime() * 0.7f);
+//        light_color.z = sin(glfwGetTime() * 1.3f);
+//        glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
+//        glm::vec3 ambient_color = light_color * glm::vec3(0.2f);
+//        lighting_shader.setVec3("light.ambient", ambient_color);
+//        lighting_shader.setVec3("light.diffuse", diffuse_color);
         
 //        设置mvp变换
 //        -----------------------
@@ -367,6 +440,13 @@ int main() {
 //        set projection matrix
         glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.f);
         lighting_shader.setMat4("projection", projection);
+        
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuse_map);
+//        bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specular_map);
         
 //        绘制场景中的物体
         glBindVertexArray(lighting_VAO);
@@ -455,4 +535,44 @@ void mouse_callback(GLFWwindow * window, double out_x_pos, double out_y_pos) {
 
 void scroll_callback(GLFWwindow * window, double x_offset, double y_offset) {
     camera.processMouseScroll(static_cast<float>(y_offset));
+}
+
+
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+        cout << "load texture successfully." << endl;
+    }
+    else
+    {
+        std::cout << "Location::File(main.cpp),Function(loadTexture); " << endl <<
+        "ERROR::Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }
