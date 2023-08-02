@@ -14,7 +14,7 @@
 #include <sstream>
 
 #include <glad/glad.h>
-#include "glm-0.9.8.5/glm/glm.hpp"
+#include "glm/glm.hpp"
 
 using namespace std;
 
